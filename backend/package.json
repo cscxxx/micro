@@ -1,0 +1,35 @@
+{
+  "name": "micro-backend",
+  "version": "1.0.0",
+  "description": "微服务后端项目",
+  "main": "setup-database.js",
+  "scripts": {
+    "start": "node start.js",
+    "stop": "node stop.js",
+    "dev": "npm run start",
+    "setup": "node setup-db.js",
+    "setup:force": "node setup-db.js --force --verbose",
+    "setup:user": "node setup-db.js --db=user --verbose",
+    "check": "node check-db.js",
+    "check:verbose": "node check-db.js --verbose",
+    "check:tables": "node check-db.js --tables --verbose",
+    "test": "node test.js",
+    "help:db": "node check-db.js --help && node setup-db.js --help"
+  },
+  "dependencies": {
+    "axios": "^1.12.1",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.2",
+    "mysql2": "^3.6.5"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "microservice",
+    "backend",
+    "mysql"
+  ],
+  "author": "",
+  "license": "ISC"
+}
