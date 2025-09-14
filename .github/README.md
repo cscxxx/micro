@@ -66,12 +66,14 @@ npm run dev
 ## 🛠️ 技术栈
 
 ### 后端
+
 - Node.js + Express.js
 - MySQL 数据库
 - JWT 认证
 - bcryptjs 密码加密
 
 ### 前端
+
 - React 18 + Vite
 - Axios HTTP 客户端
 - CSS Modules
