@@ -1,57 +1,22 @@
 import { useState, useEffect } from 'react'
 import { Card, Button, Form, Input, Table, message } from 'antd'
 import { api } from '../../utils/axios'
+import { getOrderColumns } from './columns.jsx'
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
 
-  const orderColumns = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      align: 'center',
-    },
-    {
-      title: '用户ID',
-      dataIndex: 'user_id',
-      key: 'user_id',
-      width: 100,
-      align: 'center',
-    },
-    {
-      title: '产品ID',
-      dataIndex: 'product_id',
-      key: 'product_id',
-      width: 100,
-      align: 'center',
-    },
-    {
-      title: '数量',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      width: 100,
-      align: 'center',
-    },
-    {
-      title: '总金额',
-      dataIndex: 'total_amount',
-      key: 'total_amount',
-      width: 120,
-      align: 'right',
-      render: (text) => text ? `¥${parseFloat(text).toFixed(2)}` : '-',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 180,
-      render: (text) => text ? new Date(text).toLocaleString('zh-CN') : '-',
-    },
-  ]
+  // 处理函数对象
+  const handlers = {
+    handleEdit: () => {}, // 暂时空实现
+    handleDelete: () => {}, // 暂时空实现
+    handleView: () => {}, // 暂时空实现
+  };
+
+  // 获取表格列定义
+  const orderColumns = getOrderColumns(handlers);
 
   const handleAddOrder = async (values) => {
     try {

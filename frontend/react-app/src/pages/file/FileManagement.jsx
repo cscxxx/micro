@@ -23,7 +23,7 @@ import {
   EyeOutlined
 } from '@ant-design/icons'
 import { api } from '../../utils/axios'
-import { getMimeTypeFromFilename, getFileTypeIcon, formatFileSize } from '../../utils/mimetype'
+import { getFileColumns } from './columns.jsx'
 import styles from '../../styles/pages/Management.module.css'
 
 const { Title } = Typography
@@ -124,131 +124,15 @@ const FileManagement = () => {
     }
   }
 
-  // 获取文件类型图标（优先使用文件名，回退到 mimetype）
-  const getFileIcon = (filename, mimetype) => {
-    // 优先根据文件名获取图标
-    if (filename) {
-      return getFileTypeIcon(filename)
-    }
-    
-    // 回退到基于 mimetype 的判断
-    if (mimetype && mimetype.startsWith('image/')) return '🖼️'
-    if (mimetype && mimetype.includes('pdf')) return '📄'
-    if (mimetype && mimetype.includes('word')) return '📝'
-    if (mimetype && mimetype.includes('excel')) return '📊'
-    if (mimetype && mimetype.includes('powerpoint')) return '📈'
-    if (mimetype && (mimetype.includes('zip') || mimetype.includes('rar'))) return '📦'
-    return '📁'
-  }
+  // 处理函数对象
+  const handlers = {
+    handleDownload,
+    handleDelete,
+    handleView: () => {}, // 暂时空实现
+  };
 
-  // 格式化时间
-  const formatTime = (timeString) => {
-    return new Date(timeString).toLocaleString('zh-CN')
-  }
-
-  // 表格列定义
-  const columns = [
-    {
-      title: '文件名',
-      dataIndex: 'originalname',
-      key: 'originalname',
-      render: (text, record) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ marginRight: 8 }}>{getFileIcon(record.originalname, record.mimetype)}</span>
-          <Tooltip title={text}>
-            <span style={{ 
-              maxWidth: 200, 
-              overflow: 'hidden', 
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>
-              {text}
-            </span>
-          </Tooltip>
-        </div>
-      )
-    },
-    {
-      title: '类型',
-      dataIndex: 'mimetype',
-      key: 'mimetype',
-      width: 120,
-      render: (mimetype, record) => {
-        // 如果后端没有提供有效的 mimetype，则根据文件名获取
-        const actualMimetype = mimetype && mimetype !== 'application/octet-stream' 
-          ? mimetype 
-          : getMimeTypeFromFilename(record.originalname)
-        
-        return (
-          <Tag color="blue">
-            {actualMimetype.split('/')[1]?.toUpperCase() || 'UNKNOWN'}
-          </Tag>
-        )
-      }
-    },
-    {
-      title: '大小',
-      dataIndex: 'size',
-      key: 'size',
-      width: 100,
-      render: (size) => formatFileSize(size)
-    },
-    {
-      title: '上传时间',
-      dataIndex: 'upload_time',
-      key: 'upload_time',
-      width: 160,
-      render: (time) => formatTime(time)
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
-      render: (text) => (
-        <Tooltip title={text}>
-          <span style={{ 
-            maxWidth: 150, 
-            overflow: 'hidden', 
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            display: 'inline-block'
-          }}>
-            {text || '-'}
-          </span>
-        </Tooltip>
-      )
-    },
-    {
-      title: '操作',
-      key: 'action',
-      width: 150,
-      render: (_, record) => (
-        <Space>
-          <Tooltip title="下载">
-            <Button
-              type="text"
-              icon={<DownloadOutlined />}
-              onClick={() => handleDownload(record.id, record.originalname)}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="确定要删除这个文件吗？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Tooltip title="删除">
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-              />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      )
-    }
-  ]
+  // 获取表格列定义
+  const columns = getFileColumns(handlers);
 
   // 搜索处理
   const handleSearch = (value) => {

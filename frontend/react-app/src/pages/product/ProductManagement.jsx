@@ -1,49 +1,21 @@
 import { useState, useEffect } from 'react'
 import { Card, Button, Form, Input, Table, message } from 'antd'
 import { api } from '../../utils/axios'
+import { getProductColumns } from './columns.jsx'
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(false)
   const [form] = Form.useForm()
 
-  const productColumns = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      align: 'center',
-    },
-    {
-      title: '产品名称',
-      dataIndex: 'name',
-      key: 'name',
-      width: 200,
-    },
-    {
-      title: '价格',
-      dataIndex: 'price',
-      key: 'price',
-      width: 120,
-      align: 'right',
-      render: (text) => text ? `¥${parseFloat(text).toFixed(2)}` : '-',
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
-      width: 300,
-      ellipsis: true,
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 180,
-      render: (text) => text ? new Date(text).toLocaleString('zh-CN') : '-',
-    },
-  ]
+  // 处理函数对象
+  const handlers = {
+    handleEdit: () => {}, // 暂时空实现
+    handleDelete: () => {}, // 暂时空实现
+  };
+
+  // 获取表格列定义
+  const productColumns = getProductColumns(handlers);
 
   const handleAddProduct = async (values) => {
     try {

@@ -6,6 +6,7 @@ import {
   DownloadOutlined,
   CodeOutlined
 } from '@ant-design/icons'
+import { getDownloadGuideColumns } from './columns.jsx'
 import styles from '../../styles/pages/Management.module.css'
 
 const { Title, Paragraph, Text } = Typography
@@ -75,35 +76,8 @@ const DownloadGuide = () => {
     }
   ]
 
-  const columns = [
-    {
-      title: '特性',
-      dataIndex: 'feature',
-      key: 'feature',
-      width: 120,
-      render: (text) => <Text strong>{text}</Text>
-    },
-    {
-      title: '传统下载方式',
-      dataIndex: 'traditional',
-      key: 'traditional',
-      render: (text) => (
-        <Text code style={{ fontSize: '12px' }}>
-          {text}
-        </Text>
-      )
-    },
-    {
-      title: '二进制下载方式',
-      dataIndex: 'binary',
-      key: 'binary',
-      render: (text) => (
-        <Text code style={{ fontSize: '12px' }}>
-          {text}
-        </Text>
-      )
-    }
-  ]
+  // 获取表格列定义
+  const columns = getDownloadGuideColumns();
 
   // 注意事项数据
   const considerations = [

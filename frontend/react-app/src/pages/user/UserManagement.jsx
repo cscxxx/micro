@@ -19,6 +19,7 @@ import {
   PlusOutlined 
 } from '@ant-design/icons'
 import { api } from '../../utils/axios'
+import { getUserColumns } from './columns.jsx'
 import styles from '../../styles/pages/Management.module.css'
 
 const { Title } = Typography
@@ -31,67 +32,14 @@ const UserManagement = () => {
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
 
-  const userColumns = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      align: 'center',
-    },
-    {
-      title: '用户名',
-      dataIndex: 'username',
-      key: 'username',
-      width: 150,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
-      width: 200,
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      width: 180,
-      render: (text) => text ? new Date(text).toLocaleString('zh-CN') : '-',
-    },
-    {
-      title: '操作',
-      key: 'actions',
-      width: 120,
-      align: 'center',
-      render: (_, record) => (
-        <Space>
-          <Button 
-            type="link" 
-            icon={<EditOutlined />} 
-            onClick={() => handleEdit(record)}
-            size="small"
-          >
-            编辑
-          </Button>
-          <Popconfirm
-            title="确定要删除这个用户吗？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确定"
-            cancelText="取消"
-          >
-            <Button 
-              type="link" 
-              danger 
-              icon={<DeleteOutlined />}
-              size="small"
-            >
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ]
+  // 处理函数对象
+  const handlers = {
+    handleEdit,
+    handleDelete,
+  };
+
+  // 获取表格列定义
+  const userColumns = getUserColumns(handlers);
 
   const fetchUsers = async () => {
     try {
