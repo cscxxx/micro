@@ -1,0 +1,2 @@
+// 仪表板页面导出
+export { default as Dashboard } from "./Dashboard";

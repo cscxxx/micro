@@ -1,17 +1,20 @@
-import { useState, useEffect } from 'react'
-import { Layout, Menu, Button, Dropdown, Avatar, message } from 'antd'
-import { 
-  UserOutlined, 
-  ShoppingOutlined, 
-  FileTextOutlined, 
+import { useState, useEffect } from "react";
+import { Layout, Menu, Button, Dropdown, Avatar, message } from "antd";
+import {
+  UserOutlined,
+  ShoppingOutlined,
+  FileTextOutlined,
   DashboardOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  FolderOutlined
-} from '@ant-design/icons'
-import { useNavigate, useLocation } from 'react-router-dom'
-import styles from '../styles/layout/Layout.module.css'
+  FolderOutlined,
+  DownloadOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons";
+import { useNavigate, useLocation } from "react-router-dom";
+import { getMenuItems, getRouteMetadata } from "../config/routes";
+import styles from "../styles/layout/Layout.module.css";
 
 const { Header, Content, Sider } = Layout
 
@@ -23,70 +26,63 @@ const AppLayout = ({ children }) => {
 
   // 根据当前路径设置选中的菜单项
   useEffect(() => {
-    const path = location.pathname
-    if (path.includes('/users')) {
-      setSelectedKey('users')
-    } else if (path.includes('/products')) {
-      setSelectedKey('products')
-    } else if (path.includes('/orders')) {
-      setSelectedKey('orders')
-    } else if (path.includes('/files')) {
-      setSelectedKey('files')
+    const routeMeta = getRouteMetadata(location.pathname);
+    if (routeMeta) {
+      setSelectedKey(routeMeta.menuKey);
     } else {
-      setSelectedKey('dashboard')
+      setSelectedKey("dashboard");
     }
-  }, [location.pathname])
+  }, [location.pathname]);
 
+  // 动态生成菜单项
+  const menuConfig = getMenuItems();
+  
   const menuItems = [
+    ...menuConfig.main.map((item) => ({
+      key: item.key,
+      icon: getIconComponent(item.icon),
+      label: item.title,
+    })),
     {
-      key: 'dashboard',
-      icon: <DashboardOutlined />,
-      label: '仪表板',
-    },
-    {
-      key: 'users',
-      icon: <UserOutlined />,
-      label: '用户管理',
-    },
-    {
-      key: 'products',
-      icon: <ShoppingOutlined />,
-      label: '产品管理',
-    },
-    {
-      key: 'orders',
-      icon: <FileTextOutlined />,
-      label: '订单管理',
-    },
-    {
-      key: 'files',
+      key: "files",
       icon: <FolderOutlined />,
-      label: '文件管理',
+      label: "文件管理",
+      children: menuConfig.files.map((item) => ({
+        key: item.key,
+        icon: getIconComponent(item.icon),
+        label: item.title,
+      })),
     },
-  ]
+  ];
+
+  // 图标组件映射
+  function getIconComponent(iconName) {
+    const iconMap = {
+      DashboardOutlined: <DashboardOutlined />,
+      UserOutlined: <UserOutlined />,
+      ShoppingOutlined: <ShoppingOutlined />,
+      FileTextOutlined: <FileTextOutlined />,
+      FolderOutlined: <FolderOutlined />,
+      DownloadOutlined: <DownloadOutlined />,
+      QuestionCircleOutlined: <QuestionCircleOutlined />,
+    };
+    return iconMap[iconName] || <FolderOutlined />;
+  }
 
   const handleMenuClick = ({ key }) => {
-    setSelectedKey(key)
-    switch (key) {
-      case 'dashboard':
-        navigate('/dashboard')
-        break
-      case 'users':
-        navigate('/users')
-        break
-      case 'products':
-        navigate('/products')
-        break
-      case 'orders':
-        navigate('/orders')
-        break
-      case 'files':
-        navigate('/files')
-        break
-      default:
-        break
+    setSelectedKey(key);
+    
+    // 查找对应的路径
+    const allMenuItems = [...menuConfig.main, ...menuConfig.files];
+    const menuItem = allMenuItems.find((item) => item.key === key);
+    
+    if (menuItem) {
+      navigate(menuItem.path);
+    } else if (key === "files") {
+      // 文件管理主菜单，导航到文件列表
+      navigate("/files");
     }
-  }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token')

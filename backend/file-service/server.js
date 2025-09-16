@@ -16,11 +16,7 @@ app.use(cors(config.cors));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 设置正确的编码
-app.use((req, res, next) => {
-  req.setEncoding("utf8");
-  next();
-});
+// 注意：不要对请求设置字符串编码，避免破坏二进制上传（如multipart/form-data）
 
 // 确保files目录存在
 const filesDir = path.join(__dirname, "../files");
@@ -63,14 +59,12 @@ async function connectDB() {
 // 处理中文文件名乱码的辅助函数
 function fixChineseFileName(filename) {
   try {
-    // 检查是否包含乱码字符
     if (
       filename.includes("æ") ||
       filename.includes("å") ||
       filename.includes("ä") ||
       filename.includes("ö")
     ) {
-      // 使用iconv-lite从latin1转换为utf8
       const buffer = Buffer.from(filename, "latin1");
       return iconv.decode(buffer, "utf8");
     }
@@ -86,97 +80,19 @@ const storage = multer.diskStorage({
     cb(null, filesDir);
   },
   filename: (req, file, cb) => {
-    // 生成唯一文件名：时间戳_原文件名
     const uniqueSuffix = Date.now() + "_" + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
     const name = path.basename(file.originalname, ext);
-
-    // 使用辅助函数处理中文文件名
     const safeName = fixChineseFileName(name);
     const safeExt = fixChineseFileName(ext);
-
     cb(null, `${safeName}_${uniqueSuffix}${safeExt}`);
   },
 });
 
 const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB
-  },
-  fileFilter: (req, file, cb) => {
-    // 暂时允许所有文件类型
-    cb(null, true);
-  },
-  preservePath: true,
-});
-
-// 使用formidable的文件上传接口（支持中文文件名）
-app.post("/api/files/upload-formidable", async (req, res) => {
-  try {
-    const form = formidable({
-      uploadDir: filesDir,
-      keepExtensions: true,
-      maxFileSize: 50 * 1024 * 1024, // 50MB
-      filter: function ({ name, originalFilename, mimetype }) {
-        // 允许所有文件类型
-        return true;
-      },
-    });
-
-    const [fields, files] = await form.parse(req);
-
-    if (!files.file || files.file.length === 0) {
-      return res.status(400).json({ error: "没有上传文件" });
-    }
-
-    const file = files.file[0];
-    const description = fields.description ? fields.description[0] : "";
-
-    // 生成唯一文件名
-    const uniqueSuffix = Date.now() + "_" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalFilename);
-    const name = path.basename(file.originalFilename, ext);
-    const newFilename = `${name}_${uniqueSuffix}${ext}`;
-    const newPath = path.join(filesDir, newFilename);
-
-    // 重命名文件
-    fs.renameSync(file.filepath, newPath);
-
-    const fileInfo = {
-      filename: newFilename,
-      originalname: file.originalFilename, // formidable正确处理中文文件名
-      mimetype: file.mimetype,
-      size: file.size,
-      path: newPath,
-      description: description,
-    };
-
-    // 保存文件信息到数据库
-    const [result] = await db.execute(
-      "INSERT INTO files (filename, originalname, mimetype, size, path, description) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        fileInfo.filename,
-        fileInfo.originalname,
-        fileInfo.mimetype,
-        fileInfo.size,
-        fileInfo.path,
-        fileInfo.description,
-      ]
-    );
-
-    res.json({
-      message: "文件上传成功",
-      file: {
-        id: result.insertId,
-        ...fileInfo,
-        upload_time: new Date(),
-      },
-    });
-  } catch (error) {
-    console.error("文件上传失败:", error);
-    res.status(500).json({ error: "文件上传失败: " + error.message });
-  }
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (req, file, cb) => cb(null, true),
 });
 
 // 文件上传接口
@@ -187,16 +103,32 @@ app.post("/api/files/upload", upload.single("file"), async (req, res) => {
     }
 
     const { description } = req.body;
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    const mimeMap = {
+      ".pdf": "application/pdf",
+      ".doc": "application/msword",
+      ".docx":
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ".xls": "application/vnd.ms-excel",
+      ".xlsx":
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ".ppt": "application/vnd.ms-powerpoint",
+      ".pptx":
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    };
+
     const fileInfo = {
       filename: req.file.filename,
-      originalname: fixChineseFileName(req.file.originalname), // 修复原始文件名
-      mimetype: req.file.mimetype,
+      originalname: fixChineseFileName(req.file.originalname),
+      mimetype:
+        req.file.mimetype !== "application/octet-stream"
+          ? req.file.mimetype
+          : mimeMap[ext] || "application/octet-stream",
       size: req.file.size,
       path: req.file.path,
       description: description || "",
     };
 
-    // 保存文件信息到数据库
     const [result] = await db.execute(
       "INSERT INTO files (filename, originalname, mimetype, size, path, description) VALUES (?, ?, ?, ?, ?, ?)",
       [
@@ -211,11 +143,7 @@ app.post("/api/files/upload", upload.single("file"), async (req, res) => {
 
     res.json({
       message: "文件上传成功",
-      file: {
-        id: result.insertId,
-        ...fileInfo,
-        upload_time: new Date(),
-      },
+      file: { id: result.insertId, ...fileInfo, upload_time: new Date() },
     });
   } catch (error) {
     console.error("文件上传失败:", error);
@@ -274,22 +202,23 @@ app.get("/api/files", async (req, res) => {
 app.get("/api/files/download/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const [rows] = await db.execute("SELECT * FROM files WHERE id = ?", [id]);
 
-    if (rows.length === 0) {
+    if (rows.length === 0 || !fs.existsSync(rows[0].path)) {
       return res.status(404).json({ error: "文件不存在" });
     }
 
     const file = rows[0];
-    const filePath = file.path;
+    const basename = path.basename(
+      file.originalname || path.basename(file.path)
+    );
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "文件不存在" });
-    }
-
-    res.download(filePath, file.originalname, (err) => {
-      if (err) {
+    res.setHeader(
+      "Access-Control-Expose-Headers",
+      "Content-Disposition, Content-Type, Content-Length"
+    );
+    res.download(file.path, basename, (err) => {
+      if (err && !res.headersSent) {
         console.error("文件下载失败:", err);
         res.status(500).json({ error: "文件下载失败" });
       }
@@ -297,6 +226,41 @@ app.get("/api/files/download/:id", async (req, res) => {
   } catch (error) {
     console.error("文件下载失败:", error);
     res.status(500).json({ error: "文件下载失败" });
+  }
+});
+
+// 获取文件二进制数据接口
+app.get("/api/files/binary/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await db.execute("SELECT * FROM files WHERE id = ?", [id]);
+
+    if (rows.length === 0 || !fs.existsSync(rows[0].path)) {
+      return res.status(404).json({ error: "文件不存在" });
+    }
+
+    const file = rows[0];
+
+    // 读取文件二进制数据
+    const fileBuffer = fs.readFileSync(file.path);
+
+    // 设置响应头
+    res.setHeader("Content-Type", file.mimetype);
+    res.setHeader("Content-Length", file.size);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(file.originalname)}"`
+    );
+    res.setHeader(
+      "Access-Control-Expose-Headers",
+      "Content-Disposition, Content-Type, Content-Length"
+    );
+
+    // 返回二进制数据
+    res.send(fileBuffer);
+  } catch (error) {
+    console.error("获取文件二进制数据失败:", error);
+    res.status(500).json({ error: "获取文件二进制数据失败" });
   }
 });
 

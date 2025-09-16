@@ -1,30 +1,40 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { ConfigProvider } from 'antd'
-import zhCN from 'antd/locale/zh_CN'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword from './pages/ResetPassword'
-import Dashboard from './pages/Dashboard'
-import UserManagement from './pages/UserManagement'
-import ProductManagement from './pages/ProductManagement'
-import OrderManagement from './pages/OrderManagement'
-import FileManagement from './pages/FileManagement'
-import AppLayout from './components/Layout'
-import ProtectedRoute from './components/ProtectedRoute'
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import zhCN from "antd/locale/zh_CN";
+import {
+  Login,
+  Register,
+  ForgotPassword,
+  ResetPassword,
+  Dashboard,
+  UserManagement,
+  ProductManagement,
+  OrderManagement,
+  FileManagement,
+  BinaryFileDownload,
+  DownloadGuide,
+} from "./pages";
+import AppLayout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { ROUTES } from "./config/routes";
 
 function App() {
   return (
     <ConfigProvider locale={zhCN}>
       <Router>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* 公开路由 */}
+          <Route path={ROUTES.LOGIN} element={<Login />} />
+          <Route path={ROUTES.REGISTER} element={<Register />} />
+          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
+          <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
+          
+          {/* 重定向路由 */}
+          <Route path={ROUTES.HOME} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
+          
+          {/* 受保护的路由 */}
           <Route
-            path="/dashboard"
+            path={ROUTES.DASHBOARD}
             element={
               <ProtectedRoute>
                 <AppLayout>
@@ -34,7 +44,7 @@ function App() {
             }
           />
           <Route
-            path="/users"
+            path={ROUTES.USERS}
             element={
               <ProtectedRoute>
                 <AppLayout>
@@ -44,7 +54,7 @@ function App() {
             }
           />
           <Route
-            path="/products"
+            path={ROUTES.PRODUCTS}
             element={
               <ProtectedRoute>
                 <AppLayout>
@@ -54,7 +64,7 @@ function App() {
             }
           />
           <Route
-            path="/orders"
+            path={ROUTES.ORDERS}
             element={
               <ProtectedRoute>
                 <AppLayout>
@@ -64,7 +74,7 @@ function App() {
             }
           />
           <Route
-            path="/files"
+            path={ROUTES.FILES}
             element={
               <ProtectedRoute>
                 <AppLayout>
@@ -73,11 +83,33 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route
+            path={ROUTES.FILES_BINARY_DOWNLOAD}
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <BinaryFileDownload />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.FILES_DOWNLOAD_GUIDE}
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <DownloadGuide />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* 404 重定向 */}
+          <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.DASHBOARD} replace />} />
         </Routes>
       </Router>
     </ConfigProvider>
-  )
+  );
 }
 
 export default App
