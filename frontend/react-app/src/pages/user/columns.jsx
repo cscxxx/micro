@@ -1,4 +1,4 @@
-import { Button, Space, Tooltip } from "antd";
+import { Button, Space, Tooltip, Popconfirm } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 /**
@@ -79,12 +79,20 @@ export const getUserColumns = (handlers) => [
           />
         </Tooltip>
         <Tooltip title="删除">
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handlers.handleDelete(record.id)}
-          />
+          <Popconfirm
+            title="确定要删除这个用户吗？"
+            description="删除后无法恢复，请谨慎操作。"
+            onConfirm={() => handlers.handleDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+            okButtonProps={{ danger: true }}
+          >
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+            />
+          </Popconfirm>
         </Tooltip>
       </Space>
     ),

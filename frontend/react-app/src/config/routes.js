@@ -106,6 +106,12 @@ export const routeMetadata = {
     icon: "FileTextOutlined",
     menuKey: "orders",
   },
+  [ROUTES.FILES_DOWNLOAD_GUIDE]: {
+    title: "下载方式说明",
+    icon: "QuestionCircleOutlined",
+    menuKey: "files-guide",
+    parent: "files",
+  },
   [ROUTES.FILES]: {
     title: "文件列表",
     icon: "FolderOutlined",
@@ -116,12 +122,6 @@ export const routeMetadata = {
     title: "二进制下载",
     icon: "DownloadOutlined",
     menuKey: "files-binary",
-    parent: "files",
-  },
-  [ROUTES.FILES_DOWNLOAD_GUIDE]: {
-    title: "下载方式说明",
-    icon: "QuestionCircleOutlined",
-    menuKey: "files-guide",
     parent: "files",
   },
 };

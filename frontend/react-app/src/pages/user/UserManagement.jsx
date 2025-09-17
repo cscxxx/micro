@@ -32,15 +32,6 @@ const UserManagement = () => {
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
 
-  // 处理函数对象
-  const handlers = {
-    handleEdit,
-    handleDelete,
-  };
-
-  // 获取表格列定义
-  const userColumns = getUserColumns(handlers);
-
   const fetchUsers = async () => {
     try {
       setLoading(true)
@@ -80,14 +71,48 @@ const UserManagement = () => {
   const handleUpdateUser = async (values) => {
     try {
       setLoading(true)
-      // 这里需要根据后端API调整更新逻辑
-      message.success('用户更新成功')
+      const response = await api.put(`/users/${editingUser.id}`, values)
+      
+      if (response.data && response.data.message) {
+        message.success(response.data.message)
+      } else {
+        message.success('用户更新成功')
+      }
+      
       setModalVisible(false)
       setEditingUser(null)
       form.resetFields()
       fetchUsers()
     } catch (error) {
-      message.error('用户更新失败')
+      console.error('更新用户失败:', error)
+      
+      // 根据不同的错误状态码显示不同的错误信息
+      if (error.response) {
+        const { status, data } = error.response
+        switch (status) {
+          case 400:
+            message.error(data.error || '输入信息有误')
+            break
+          case 401:
+            message.error('未授权，请重新登录')
+            break
+          case 403:
+            message.error('权限不足')
+            break
+          case 404:
+            message.error('用户不存在')
+            break
+          case 500:
+            message.error('服务器错误，请稍后重试')
+            break
+          default:
+            message.error(data.error || '更新用户失败')
+        }
+      } else if (error.request) {
+        message.error('网络错误，请检查网络连接')
+      } else {
+        message.error('更新用户失败，请稍后重试')
+      }
     } finally {
       setLoading(false)
     }
@@ -96,12 +121,45 @@ const UserManagement = () => {
   const handleDelete = async (userId) => {
     try {
       setLoading(true)
-      // 这里需要根据后端API调整删除逻辑
-      await api.delete(`/users/${userId}`)
-      message.success('用户删除成功')
+      const response = await api.delete(`/users/${userId}`)
+      
+      if (response.data && response.data.message) {
+        message.success(response.data.message)
+      } else {
+        message.success('用户删除成功')
+      }
+      
       fetchUsers()
     } catch (error) {
-      message.error('用户删除失败')
+      console.error('删除用户失败:', error)
+      
+      // 根据不同的错误状态码显示不同的错误信息
+      if (error.response) {
+        const { status, data } = error.response
+        switch (status) {
+          case 400:
+            message.error(data.error || '无法删除该用户')
+            break
+          case 401:
+            message.error('未授权，请重新登录')
+            break
+          case 403:
+            message.error('权限不足')
+            break
+          case 404:
+            message.error('用户不存在')
+            break
+          case 500:
+            message.error('服务器错误，请稍后重试')
+            break
+          default:
+            message.error(data.error || '删除用户失败')
+        }
+      } else if (error.request) {
+        message.error('网络错误，请检查网络连接')
+      } else {
+        message.error('删除用户失败，请稍后重试')
+      }
     } finally {
       setLoading(false)
     }
@@ -120,6 +178,15 @@ const UserManagement = () => {
     setEditingUser(null)
     form.resetFields()
   }
+
+  // 处理函数对象
+  const handlers = {
+    handleEdit,
+    handleDelete,
+  };
+
+  // 获取表格列定义
+  const userColumns = getUserColumns(handlers);
 
   const filteredUsers = users.filter(user =>
     user.username.toLowerCase().includes(searchText.toLowerCase()) ||

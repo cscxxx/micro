@@ -266,6 +266,108 @@ app.post("/api/users", authenticateToken, (req, res) => {
   );
 });
 
+// 更新用户接口（需要认证）
+app.put("/api/users/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username, email } = req.body;
+
+    // 检查用户是否存在
+    db.query("SELECT * FROM users WHERE id = ?", [id], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: "用户不存在" });
+      }
+
+      // 检查用户名和邮箱是否被其他用户使用
+      db.query(
+        "SELECT * FROM users WHERE (username = ? OR email = ?) AND id != ?",
+        [username, email, id],
+        (err, existingUsers) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (existingUsers.length > 0) {
+            return res
+              .status(400)
+              .json({ error: "用户名或邮箱已被其他用户使用" });
+          }
+
+          // 更新用户信息
+          db.query(
+            "UPDATE users SET username = ?, email = ? WHERE id = ?",
+            [username, email, id],
+            (err, result) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+
+              res.json({
+                message: "用户信息更新成功",
+                user: {
+                  id: parseInt(id),
+                  username,
+                  email,
+                },
+              });
+            }
+          );
+        }
+      );
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 删除用户接口（需要认证）
+app.delete("/api/users/:id", authenticateToken, (req, res) => {
+  try {
+    const { id } = req.params;
+    const currentUserId = req.user.id;
+
+    // 防止用户删除自己
+    if (parseInt(id) === currentUserId) {
+      return res.status(400).json({ error: "不能删除自己的账户" });
+    }
+
+    // 检查用户是否存在
+    db.query("SELECT * FROM users WHERE id = ?", [id], (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: "用户不存在" });
+      }
+
+      const user = results[0];
+
+      // 删除用户
+      db.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        res.json({
+          message: "用户删除成功",
+          deletedUser: {
+            id: parseInt(id),
+            username: user.username,
+            email: user.email,
+          },
+        });
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(serviceConfig.port, () => {
   console.log(`${serviceConfig.name} running on port ${serviceConfig.port}`);
   console.log(`Base URL: ${serviceConfig.baseUrl}`);
