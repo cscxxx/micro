@@ -3,14 +3,14 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("../config");
+const config = require("./config");
 
 const app = express();
-const serviceConfig = config.getServiceConfig("user");
-const dbConfig = config.getDatabaseConfig("user");
+const serviceConfig = config.service;
+const dbConfig = config.database;
 
 // Middleware
-app.use(cors(config.cors));
+app.use(cors());
 app.use(express.json());
 
 // MySQL connection

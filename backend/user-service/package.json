@@ -5,7 +5,26 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "npm ci --only=production",
+    "build:clean": "rm -rf node_modules && npm ci --only=production",
+    "package": "chmod +x package.sh && ./package.sh",
+    "setup:db": "node setup-db.js",
+    "setup:db:force": "node setup-db.js --force",
+    "setup:db:verbose": "node setup-db.js --verbose",
+    "check:db": "node check-db.js",
+    "check:db:verbose": "node check-db.js --verbose",
+    "check:db:tables": "node check-db.js --tables",
+    "deploy": "chmod +x deploy.sh && ./deploy.sh prod deploy",
+    "deploy:dev": "chmod +x deploy.sh && ./deploy.sh dev deploy",
+    "deploy:build": "chmod +x deploy.sh && ./deploy.sh prod build",
+    "deploy:package": "chmod +x deploy.sh && ./deploy.sh prod package",
+    "deploy:upload": "chmod +x deploy.sh && ./deploy.sh prod upload",
+    "deploy:start": "chmod +x deploy.sh && ./deploy.sh prod start",
+    "deploy:stop": "chmod +x deploy.sh && ./deploy.sh prod stop",
+    "deploy:restart": "chmod +x deploy.sh && ./deploy.sh prod restart",
+    "deploy:status": "chmod +x deploy.sh && ./deploy.sh prod status",
+    "deploy:logs": "chmod +x deploy.sh && ./deploy.sh prod logs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

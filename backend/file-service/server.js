@@ -6,13 +6,13 @@ const fs = require("fs");
 const mysql = require("mysql2/promise");
 const iconv = require("iconv-lite");
 const formidable = require("formidable");
-const config = require("../config");
+const config = require("./config");
 
 const app = express();
-const serviceConfig = config.getServiceConfig("file");
+const serviceConfig = config.service;
 
 // 中间件
-app.use(cors(config.cors));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -25,7 +25,7 @@ if (!fs.existsSync(filesDir)) {
 }
 
 // 数据库连接配置
-const dbConfig = config.getDatabaseConfig("file");
+const dbConfig = config.database;
 
 // 创建数据库连接
 let db;

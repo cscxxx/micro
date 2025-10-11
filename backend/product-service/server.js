@@ -1,14 +1,14 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-const config = require("../config");
+const config = require("./config");
 
 const app = express();
-const serviceConfig = config.getServiceConfig("product");
-const dbConfig = config.getDatabaseConfig("product");
+const serviceConfig = config.service;
+const dbConfig = config.database;
 
 // Middleware
-app.use(cors(config.cors));
+app.use(cors());
 app.use(express.json());
 
 // MySQL connection
