@@ -1,8 +1,14 @@
 import { defineConfig } from "@rspack/cli";
 import { container, HtmlRspackPlugin } from "@rspack/core";
 import pluginReact from "@rspack/plugin-react-refresh";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const { ModuleFederationPlugin } = container;
+
+// ES 模块中获取 __dirname 的替代方案
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   // 应用入口文件
@@ -17,6 +23,10 @@ export default defineConfig({
   resolve: {
     // 文件扩展名解析顺序，按顺序尝试解析
     extensions: [".tsx", ".ts", ".jsx", ".js"],
+    // 路径别名配置：使用 @ 作为 src 目录的别名
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
 
   // 模块处理规则
@@ -69,6 +79,10 @@ export default defineConfig({
         // 格式：remoteName: "remoteName@远程应用URL/remoteEntry.js"
         remoteExample: "remoteExample@http://localhost:31220/remoteEntry.js",
       },
+      exposes: {
+        // 暴露认证模块：子应用可以通过 host/Auth 访问
+        "./Auth": "./src/utils/auth/index.ts",
+      },
       shared: {
         // 共享模块配置：定义主应用和子应用共享的依赖
         // singleton: true - 确保整个应用只有一个实例
@@ -94,7 +108,9 @@ export default defineConfig({
         },
         "@ant-design/icons": {
           singleton: true,
+          requiredVersion: "^5.4.0",
           eager: true,
+          strictVersion: false, // 允许版本不匹配时使用降级处理
         },
       },
     }),

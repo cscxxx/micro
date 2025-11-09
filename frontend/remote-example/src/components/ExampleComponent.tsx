@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, Typography, Space, Tag, Button, App } from "antd";
 import { CheckCircleOutlined, RocketOutlined } from "@ant-design/icons";
+import { searchUsers } from "./server";
 
 const { Title, Paragraph } = Typography;
 
@@ -9,6 +10,15 @@ const ExampleComponent: React.FC = () => {
 
   const handleClick = () => {
     message.success("这是一个来自远程模块的组件！");
+  };
+  const handleClick2 = async () => {
+    try {
+      const users = await searchUsers("张三");
+      console.log(users);
+    } catch (error) {
+      // 错误已经被拦截器处理并显示提示，这里只需要记录日志
+      console.error("请求失败:", error);
+    }
   };
 
   return (
@@ -42,6 +52,9 @@ const ExampleComponent: React.FC = () => {
 
           <Button type="primary" size="large" onClick={handleClick}>
             测试交互
+          </Button>
+          <Button type="primary" onClick={handleClick2}>
+            测试请求
           </Button>
         </Space>
       </Card>

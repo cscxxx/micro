@@ -1,7 +1,8 @@
 import React from "react";
+import { BrowserRouter } from "react-router-dom";
 import { ConfigProvider, App as AntdApp } from "antd";
 import zhCN from "antd/locale/zh_CN";
-import ExampleComponent from "./components/ExampleComponent";
+import AppRouter from "./router";
 
 const App: React.FC = () => {
   return (
@@ -15,7 +16,9 @@ const App: React.FC = () => {
       }}
     >
       <AntdApp>
-        <ExampleComponent />
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
       </AntdApp>
     </ConfigProvider>
   );
