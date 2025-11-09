@@ -1,0 +1,28 @@
+{
+  "name": "remote-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx node_modules/@rspack/cli/bin/rspack.js serve",
+    "build": "tsx node_modules/@rspack/cli/bin/rspack.js build",
+    "preview": "tsx node_modules/@rspack/cli/bin/rspack.js preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.4.0",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "antd": "^5.27.3",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.1"
+  },
+  "devDependencies": {
+    "@rspack/cli": "^1.0.0",
+    "@rspack/core": "^1.0.0",
+    "@rspack/plugin-react-refresh": "^1.0.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "tsx": "^4.20.6",
+    "typescript": "^5.6.0"
+  }
+}

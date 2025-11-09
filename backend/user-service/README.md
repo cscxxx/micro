@@ -10,30 +10,14 @@
 npm install
 ```
 
-2. 创建 `.env` 文件，包含以下变量：
+2. 创建 `.env` 文件，参考 `env.example` 文件：
 
-```
-PORT=3001
-DB_HOST=192.168.1.2
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=micro_user_service_db
+```bash
+cp env.example .env
+# 编辑 .env 文件，配置数据库连接信息
 ```
 
-3. 创建数据库和用户表：
-
-```sql
-CREATE DATABASE micro_user_service_db;
-USE micro_user_service_db;
-CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-4. 启动服务：
+3. 启动服务：
 
 ```bash
 npm start
@@ -42,3 +26,17 @@ npm run dev
 ```
 
 服务将在端口 3001 上运行。
+
+## 数据库说明
+
+详细的数据库结构和使用说明请参考 [DATABASE.md](./DATABASE.md)。
+
+## 部署
+
+```bash
+# 打包服务
+npm run package
+
+# 部署到服务器
+npm run deploy
+```

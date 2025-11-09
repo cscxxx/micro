@@ -1,0 +1,67 @@
+{
+  "compilerOptions": {
+    // 编译目标：编译后的 JavaScript 版本
+    "target": "ES2020",
+
+    // 类字段定义方式：使用 ES2022 的类字段定义方式
+    "useDefineForClassFields": true,
+
+    // 类型库：包含的类型定义
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+
+    // 模块系统：使用 ESNext 模块系统
+    "module": "ESNext",
+
+    // 跳过类型检查：跳过对声明文件的类型检查（加快编译速度）
+    "skipLibCheck": true,
+
+    // 模块解析策略：使用 bundler 模式（适合现代打包工具）
+    "moduleResolution": "bundler",
+
+    // 允许导入 TypeScript 扩展名：不允许（使用 bundler 时通常不需要）
+    "allowImportingTsExtensions": false,
+
+    // 允许合成默认导入：允许从没有默认导出的模块中默认导入
+    "allowSyntheticDefaultImports": true,
+
+    // ES 模块互操作：启用 ES 模块和 CommonJS 模块之间的互操作
+    "esModuleInterop": true,
+
+    // 解析 JSON 模块：允许导入 JSON 文件
+    "resolveJsonModule": true,
+
+    // 独立模块：确保每个文件可以作为独立模块编译
+    "isolatedModules": true,
+
+    // 不生成输出文件：只进行类型检查，不生成 JavaScript 文件（由 Rspack 处理）
+    "noEmit": true,
+
+    // JSX 处理方式：使用 React 17+ 的自动 JSX 运行时
+    "jsx": "react-jsx",
+
+    // 严格模式：启用所有严格类型检查选项
+    "strict": true,
+
+    // 未使用的局部变量：报告未使用的局部变量错误
+    "noUnusedLocals": true,
+
+    // 未使用的参数：报告未使用的参数错误
+    "noUnusedParameters": true,
+
+    // Switch 语句完整性：确保 switch 语句覆盖所有情况
+    "noFallthroughCasesInSwitch": true,
+
+    // 基础路径：用于解析非相对模块名的基准目录
+    "baseUrl": ".",
+
+    // 路径映射：配置模块路径别名
+    "paths": {
+      "@/*": ["./src/*"] // 使用 @/ 作为 src/ 的别名
+    }
+  },
+  // 包含的文件：编译 src 目录下的所有文件
+  "include": ["src/**/*"],
+
+  // 项目引用：引用 tsconfig.node.json 配置（用于构建工具配置）
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

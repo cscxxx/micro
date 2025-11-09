@@ -94,7 +94,6 @@ app.post("/api/users/register", async (req, res) => {
 
 // 用户登录接口
 app.post("/api/auth/login", async (req, res) => {
-  debugger;
   try {
     const { username, password } = req.body;
 
@@ -142,6 +141,7 @@ app.post("/api/auth/login", async (req, res) => {
       }
     );
   } catch (error) {
+    console.log("error", error);
     res.status(500).json({ error: error.message });
   }
 });

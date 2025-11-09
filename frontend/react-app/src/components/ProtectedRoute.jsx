@@ -40,6 +40,7 @@ const ProtectedRoute = ({ children }) => {
       return <Navigate to="/login" state={{ from: location }} replace />
     }
   } catch (error) {
+    
     // 用户信息解析失败，清除并重定向到登录页
     localStorage.removeItem('token')
     localStorage.removeItem('user')
