@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, Card, message } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { login } from "./api";
-import { setToken, setUserInfo } from "@/utils/auth";
+import { useAuthStore } from "@/stores";
+import type { AuthStore } from "@/stores/types";
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  // 使用 store 的登录方法
+  const loginAction = useAuthStore((state: AuthStore) => state.login);
 
   // 获取重定向路径
   const from = (location.state as any)?.from?.pathname || "/";
@@ -18,9 +21,8 @@ const Login: React.FC = () => {
     try {
       const response = await login(values);
 
-      // 保存 token 和用户信息
-      setToken(response.token);
-      setUserInfo(response.user);
+      // 使用 store 保存 token 和用户信息
+      loginAction(response.token, response.user);
 
       message.success("登录成功");
 

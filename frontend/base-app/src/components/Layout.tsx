@@ -2,7 +2,8 @@ import React from "react";
 import { Layout as AntLayout, Menu, Button, Dropdown, Space } from "antd";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
-import { removeToken, getUserInfo } from "@/utils/auth";
+import { useAuthStore } from "@/stores";
+import type { AuthStore } from "@/stores/types";
 
 const { Header, Content } = AntLayout;
 
@@ -13,10 +14,12 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const userInfo = getUserInfo();
+  // 使用 store 获取用户信息和登出方法
+  const userInfo = useAuthStore((state: AuthStore) => state.userInfo);
+  const logout = useAuthStore((state: AuthStore) => state.logout);
 
   const handleLogout = () => {
-    removeToken();
+    logout();
     navigate("/login");
   };
 

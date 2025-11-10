@@ -1,4 +1,4 @@
-import { MessageData, MessageType } from "./types";
+import type { MessageData } from "./types";
 
 /**
  * Token 存储键名（统一）
@@ -154,10 +154,13 @@ if (typeof window !== "undefined") {
     ];
 
     // 开发环境允许所有来源，生产环境应该严格验证
-    if (
-      process.env.NODE_ENV === "production" &&
-      !allowedOrigins.includes(event.origin)
-    ) {
+    // 在浏览器环境中，通过 hostname 判断是否为生产环境
+    const isProduction =
+      typeof window !== "undefined" &&
+      !window.location.hostname.includes("localhost") &&
+      !window.location.hostname.includes("127.0.0.1");
+
+    if (isProduction && !allowedOrigins.includes(event.origin)) {
       return;
     }
 
